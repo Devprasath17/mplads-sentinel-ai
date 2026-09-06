@@ -1,0 +1,310 @@
+// Prisma Schema for MPLADS SENTINEL AI
+// PostgreSQL + PostGIS Relational Database Model
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  NATIONAL_ADMIN
+  STATE_OFFICER
+  DISTRICT_COLLECTOR
+  FIELD_INSPECTOR
+  AUDITOR
+}
+
+enum RiskCategory {
+  COST
+  DELAY
+  PAYMENT
+  DUPLICATE
+  UTILIZATION
+  COMPLIANCE
+}
+
+enum CaseStatus {
+  NEW
+  ASSIGNED
+  UNDER_REVIEW
+  EVIDENCE_REQUESTED
+  RESOLVED
+  CLOSED
+}
+
+enum Severity {
+  LOW
+  MODERATE
+  HIGH
+  CRITICAL
+}
+
+model User {
+  id           String       @id @default(uuid())
+  email        String       @unique
+  name         String
+  role         Role         @default(DISTRICT_COLLECTOR)
+  department   String
+  designation  String
+  stateId      String?
+  districtId   String?
+  createdCases ReviewCase[] @relation("CreatedCases")
+  assignedCases ReviewCase[] @relation("AssignedCases")
+  auditLogs    AuditLog[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  state        State?       @relation(fields: [stateId], references: [id])
+  district     District?    @relation(fields: [districtId], references: [id])
+
+  @@map("users")
+}
+
+model State {
+  id             String     @id @default(uuid())
+  code           String     @unique // e.g. TN, UP, MH
+  name           String     @unique // e.g. Tamil Nadu
+  totalOutlay    Float      @default(0.0)
+  expenditure    Float      @default(0.0)
+  totalProjects  Int        @default(0)
+  highRiskCount  Int        @default(0)
+  riskScore      Float      @default(0.0)
+  districts      District[]
+  projects       Project[]
+  users          User[]
+
+  @@map("states")
+}
+
+model District {
+  id             String         @id @default(uuid())
+  stateId        String
+  name           String
+  code           String         @unique // e.g. TN-CHN
+  collectorName  String?
+  totalProjects  Int            @default(0)
+  highRiskCount  Int            @default(0)
+  riskScore      Float          @default(0.0)
+  outlay         Float          @default(0.0)
+  expended       Float          @default(0.0)
+  syncRate       Float          @default(0.0)
+  state          State          @relation(fields: [stateId], references: [id])
+  constituencies Constituency[]
+  projects       Project[]
+  users          User[]
+
+  @@map("districts")
+}
+
+model Constituency {
+  id         String    @id @default(uuid())
+  districtId String
+  name       String
+  mpName     String?
+  district   District  @relation(fields: [districtId], references: [id])
+  projects   Project[]
+
+  @@map("constituencies")
+}
+
+model Agency {
+  id          String    @id @default(uuid())
+  name        String
+  code        String    @unique
+  type        String    // e.g. PWD, DRDA, TWAD, Municipal Corp
+  projects    Project[]
+  riskScore   Float     @default(0.0)
+  flaggedCount Int      @default(0)
+
+  @@map("agencies")
+}
+
+model Project {
+  id                     String            @id @default(uuid())
+  projectCode            String            @unique // e.g. MPL-2026-1042
+  stateId                String
+  districtId             String
+  constituencyId         String
+  agencyId               String
+  workType               String            // e.g. Infrastructure, Healthcare, Water Supply
+  description            String
+  sanctionedAmount       Float
+  estimatedCost          Float
+  expenditure            Float             @default(0.0)
+  physicalProgress       Float             @default(0.0) // percentage 0 - 100
+  expectedProgress       Float             @default(0.0) // percentage 0 - 100
+  latitude               Float
+  longitude              Float
+  startDate              DateTime
+  expectedCompletionDate DateTime
+  actualCompletionDate   DateTime?
+  status                 String            @default("IN_PROGRESS") // IN_PROGRESS, COMPLETED, DELAYED, STALLED
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+
+  state                  State             @relation(fields: [stateId], references: [id])
+  district               District          @relation(fields: [districtId], references: [id])
+  constituency           Constituency      @relation(fields: [constituencyId], references: [id])
+  agency                 Agency            @relation(fields: [agencyId], references: [id])
+  
+  progressLogs           ProjectProgress[]
+  documents              ProjectDocument[]
+  payments               Payment[]
+  riskScores             RiskScore[]
+  riskSignals            RiskSignal[]
+  alerts                 Alert[]
+  reviewCases            ReviewCase[]
+  auditLogs              AuditLog[]
+  duplicateMatchesAsA    DuplicateMatch[]  @relation("ProjectA")
+  duplicateMatchesAsB    DuplicateMatch[]  @relation("ProjectB")
+
+  @@map("projects")
+}
+
+model ProjectProgress {
+  id           String   @id @default(uuid())
+  projectId    String
+  milestoneName String  // e.g. M1: Site Clearing, M2: Plinth & Columns, M3: Roof Slab
+  plannedTarget Float
+  dateAchieved DateTime?
+  disbursement Float    @default(0.0)
+  verified     Boolean  @default(false)
+  project      Project  @relation(fields: [projectId], references: [id])
+
+  @@map("project_progress")
+}
+
+model ProjectDocument {
+  id          String   @id @default(uuid())
+  projectId   String
+  title       String
+  fileUrl     String
+  fileType    String   // GEO_PHOTO, SANCTION_ORDER, MB_BOOK, INVOICE
+  uploadedAt  DateTime @default(now())
+  project     Project  @relation(fields: [projectId], references: [id])
+
+  @@map("project_documents")
+}
+
+model Payment {
+  id          String   @id @default(uuid())
+  projectId   String
+  amount      Float
+  tranche     Int
+  paymentDate DateTime
+  referenceNo String
+  project     Project  @relation(fields: [projectId], references: [id])
+
+  @@map("payments")
+}
+
+model RiskScore {
+  id               String   @id @default(uuid())
+  projectId        String
+  overallScore     Float    // 0 to 100
+  costRisk         Float    // 0 to 100
+  delayRisk        Float    // 0 to 100
+  paymentRisk      Float    // 0 to 100
+  duplicateRisk    Float    // 0 to 100
+  utilizationRisk  Float    // 0 to 100
+  complianceRisk   Float    // 0 to 100
+  modelVersion     String   @default("v4.2.1-prod")
+  calculatedAt     DateTime @default(now())
+  project          Project  @relation(fields: [projectId], references: [id])
+
+  @@map("risk_scores")
+}
+
+model RiskSignal {
+  id          String       @id @default(uuid())
+  projectId   String
+  category    RiskCategory
+  scoreContribution Float
+  title       String
+  description String
+  confidence  Float        @default(90.0)
+  evidenceJson String      // JSON serialized structured evidence
+  createdAt   DateTime     @default(now())
+  project     Project      @relation(fields: [projectId], references: [id])
+
+  @@map("risk_signals")
+}
+
+model Alert {
+  id            String   @id @default(uuid())
+  alertCode     String   @unique // e.g. ALT-2026-8802
+  projectId     String
+  severity      Severity @default(HIGH)
+  title         String
+  summary       String
+  assignedToId  String?
+  isResolved    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  project       Project  @relation(fields: [projectId], references: [id])
+
+  @@map("alerts")
+}
+
+model ReviewCase {
+  id             String           @id @default(uuid())
+  caseCode       String           @unique // e.g. RC-2026-00428
+  projectId      String
+  createdById    String
+  assignedToId   String?
+  severity       Severity         @default(HIGH)
+  status         CaseStatus       @default(NEW)
+  reason         String
+  resolution     String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  project        Project          @relation(fields: [projectId], references: [id])
+  createdBy      User             @relation("CreatedCases", fields: [createdById], references: [id])
+  assignedTo     User?            @relation("AssignedCases", fields: [assignedToId], references: [id])
+  notes          ReviewCaseNote[]
+
+  @@map("review_cases")
+}
+
+model ReviewCaseNote {
+  id           String     @id @default(uuid())
+  reviewCaseId String
+  authorName   String
+  note         String
+  createdAt    DateTime   @default(now())
+  reviewCase   ReviewCase @relation(fields: [reviewCaseId], references: [id])
+
+  @@map("review_case_notes")
+}
+
+model DuplicateMatch {
+  id                String   @id @default(uuid())
+  projectAId        String
+  projectBId        String
+  similarityScore   Float    // e.g. 92.4%
+  spatialDistanceMeters Float// e.g. 380.0m
+  nlpOverlapScore   Float    // e.g. 92.0%
+  agencyMatch       Boolean  @default(false)
+  projectA          Project  @relation("ProjectA", fields: [projectAId], references: [id])
+  projectB          Project  @relation("ProjectB", fields: [projectBId], references: [id])
+
+  @@map("duplicate_matches")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  projectId  String?
+  userId     String?
+  action     String   // VIEW_DOSSIER, CREATE_CASE, ASSIGN_OFFICER, DISBURSEMENT_FREEZE, EXPORT_PDF
+  details    String
+  timestamp  DateTime @default(now())
+  ipAddress  String?  @default("127.0.0.1")
+  project    Project? @relation(fields: [projectId], references: [id])
+  user       User?    @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}

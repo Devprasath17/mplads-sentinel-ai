@@ -1,0 +1,84 @@
+# ==============================================================================
+# MPLADS SENTINEL AI — PRODUCTION-READY .GITIGNORE
+# ==============================================================================
+
+# Node.js / JavaScript / TypeScript Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm/
+
+# Build & Output Directories
+dist/
+dist-ssr/
+build/
+out/
+.next/
+.nuxt/
+.vite/
+coverage/
+*.tsbuildinfo
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+service-account.json
+
+# Python & AI/ML Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local AI / ML Generated Checkpoints & Outputs
+models/
+checkpoints/
+mlruns/
+wandb/
+*.pkl
+*.joblib
+*.pt
+*.pth
+
+# IDE & OS System Files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Logs and Temporary Files
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+
+# Local SQLite Database Files
+*.sqlite
+*.sqlite3
