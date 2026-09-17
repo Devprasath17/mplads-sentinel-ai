@@ -23,10 +23,10 @@ export const RiskScoreGauge: React.FC<RiskScoreGaugeProps> = ({
   const progress = Math.min(100, Math.max(0, score));
   const strokeDashoffset = circumference - (progress / 100) * circumference;
 
-  let strokeColor = "#10B981"; // Low
-  if (score >= 80) strokeColor = "#EF4444"; // Critical
-  else if (score >= 70) strokeColor = "#F97316"; // High
-  else if (score >= 50) strokeColor = "#F59E0B"; // Moderate
+  let strokeColor = "#15803D"; // Low
+  if (score >= 80) strokeColor = "#DC2626"; // Critical
+  else if (score >= 70) strokeColor = "#EA580C"; // High
+  else if (score >= 50) strokeColor = "#D97706"; // Moderate
 
   return (
     <div className="flex flex-col items-center justify-center p-3">
@@ -36,7 +36,7 @@ export const RiskScoreGauge: React.FC<RiskScoreGaugeProps> = ({
             cx={size / 2}
             cy={size / 2}
             r={radius}
-            stroke="#1E293B"
+            stroke="#E2E8F0"
             strokeWidth={strokeWidth}
             fill="transparent"
           />
@@ -55,19 +55,19 @@ export const RiskScoreGauge: React.FC<RiskScoreGaugeProps> = ({
         </svg>
 
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-          <span className="text-3xl font-extrabold font-mono tracking-tight text-white drop-shadow-sm">
+          <span className="text-4xl font-extrabold font-mono tracking-tight text-slate-900">
             {score}
           </span>
-          <span className="text-[11px] font-mono text-slate-400 font-semibold -mt-0.5">
+          <span className="text-xs font-mono text-slate-500 font-medium -mt-1">
             / 100
           </span>
         </div>
       </div>
 
-      <div className="mt-2 text-center">
-        <div className="text-xs font-bold uppercase tracking-wider text-slate-200">{label}</div>
-        <div className="text-[11px] text-rose-400 font-medium">{sublabel}</div>
-        <div className="mt-1 flex items-center justify-center gap-2 text-[10px] text-slate-400 font-mono">
+      <div className="mt-3 text-center">
+        <div className="text-xs font-bold uppercase tracking-wider text-slate-800 font-mono">{label}</div>
+        <div className="text-[11px] text-red-700 font-semibold mt-0.5">{sublabel}</div>
+        <div className="mt-1 flex items-center justify-center gap-2 text-[10px] text-slate-500 font-mono">
           <span>Rev: {revision}</span>
           <span>•</span>
           <span>Robustness: {robustness}</span>
@@ -76,3 +76,4 @@ export const RiskScoreGauge: React.FC<RiskScoreGaugeProps> = ({
     </div>
   );
 };
+

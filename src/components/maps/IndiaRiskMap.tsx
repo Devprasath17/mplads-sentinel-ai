@@ -26,22 +26,22 @@ export const IndiaRiskMap: React.FC<IndiaRiskMapProps> = ({ onSelectState }) => 
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-gov-md relative overflow-hidden flex flex-col h-[420px]">
-      <div className="flex items-center justify-between gap-2 mb-3">
+    <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm relative overflow-hidden flex flex-col h-[420px] font-sans">
+      <div className="flex items-center justify-between gap-2 mb-3 font-mono">
         <div>
-          <div className="text-xs font-bold font-mono uppercase tracking-wider text-slate-300 flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-blue-400" />
+          <div className="text-xs font-bold font-mono uppercase tracking-wider text-slate-900 flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-blue-700" />
             <span>INDIA GEOGRAPHIC RISK INTELLIGENCE MAP</span>
           </div>
-          <div className="text-[11px] text-slate-400">
-            Real-time geospatial risk synthesis across 28 States & 8 UTs
+          <div className="text-[11px] text-slate-500 font-sans mt-0.5">
+            Real-time geospatial risk synthesis across 28 States &amp; 8 UTs
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 font-mono">
           <button
             onClick={() => handleStateClick('TN')}
-            className="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded text-xs font-semibold font-mono flex items-center gap-1.5 shadow-sm transition-all"
+            className="px-3.5 py-1.5 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-semibold font-mono flex items-center gap-1.5 shadow-sm transition-all"
           >
             <span>Open TN State Dashboard</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -50,57 +50,57 @@ export const IndiaRiskMap: React.FC<IndiaRiskMapProps> = ({ onSelectState }) => 
       </div>
 
       {/* Map visual graphic representation */}
-      <div className="relative flex-1 bg-slate-950 rounded-lg border border-slate-800 overflow-hidden flex items-center justify-center p-4">
+      <div className="relative flex-1 bg-slate-50 rounded-lg border border-slate-200 overflow-hidden flex items-center justify-center p-4">
         {/* Subtle grid background */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-30" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-40" />
 
         {/* India map vector zone nodes */}
         <div className="relative w-full max-w-lg h-full flex flex-col justify-between items-center py-4">
-          <div className="absolute top-4 left-4 z-10 bg-slate-900/90 border border-slate-800 p-2.5 rounded-lg text-xs space-y-1">
-            <div className="font-bold text-white text-[11px] font-mono">RISK LEGEND</div>
+          <div className="absolute top-4 left-4 z-10 bg-white/95 border border-slate-200 p-3 rounded-lg text-xs space-y-1 shadow-sm font-mono">
+            <div className="font-bold text-slate-900 text-[11px] font-mono">RISK LEGEND</div>
             <div className="flex items-center gap-2 text-[10px]">
-              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
-              <span className="text-slate-300">High Risk Concentration (&gt;70)</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse" />
+              <span className="text-slate-700">High Risk Concentration (&gt;70)</span>
             </div>
             <div className="flex items-center gap-2 text-[10px]">
               <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-              <span className="text-slate-300">Moderate Vigilance (50-70)</span>
+              <span className="text-slate-700">Moderate Vigilance (50-70)</span>
             </div>
             <div className="flex items-center gap-2 text-[10px]">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-              <span className="text-slate-300">Standard Baseline (&lt;50)</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
+              <span className="text-slate-700">Standard Baseline (&lt;50)</span>
             </div>
           </div>
 
           {/* Interactive State Pins Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 z-10 w-full mt-8 px-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 z-10 w-full mt-8 px-4 font-mono">
             {STATES_DATA.map(st => {
               const isHigh = st.riskIndex >= 70;
               return (
                 <div
                   key={st.id}
                   onClick={() => handleStateClick(st.code)}
-                  className={`p-3 rounded-lg border cursor-pointer transition-all hover:scale-105 ${
+                  className={`p-3 rounded-lg border cursor-pointer transition-all hover:scale-105 shadow-sm ${
                     st.code === 'TN'
-                      ? 'bg-rose-950/80 border-rose-500 text-white shadow-lg shadow-rose-950/50 ring-2 ring-rose-500/50'
+                      ? 'bg-red-50 border-red-300 text-red-950 ring-2 ring-red-500/40'
                       : isHigh
-                      ? 'bg-slate-900/90 border-amber-500/60 hover:border-amber-400 text-slate-200'
-                      : 'bg-slate-900/90 border-slate-700 hover:border-slate-500 text-slate-300'
+                      ? 'bg-white border-amber-300 hover:border-amber-400 text-slate-900'
+                      : 'bg-white border-slate-200 hover:border-slate-300 text-slate-900'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-xs font-mono">{st.name}</span>
-                    <span className={`text-xs font-extrabold font-mono ${isHigh ? 'text-rose-400' : 'text-amber-400'}`}>
+                    <span className={`text-xs font-extrabold font-mono ${isHigh ? 'text-red-700' : 'text-amber-700'}`}>
                       {st.riskIndex}
                     </span>
                   </div>
 
-                  <div className="mt-1 text-[10px] text-slate-400 flex items-center justify-between">
+                  <div className="mt-1 text-[10px] text-slate-500 flex items-center justify-between font-mono">
                     <span>Works: {st.totalProjects.toLocaleString()}</span>
-                    <span className="text-rose-300 font-semibold">{st.highRiskCount} Flagged</span>
+                    <span className="text-red-700 font-semibold">{st.highRiskCount} Flagged</span>
                   </div>
 
-                  <div className="mt-2 text-[9px] font-mono text-blue-400 underline flex items-center gap-1">
+                  <div className="mt-2 text-[9px] font-mono text-blue-700 font-bold underline flex items-center gap-1">
                     <span>Inspect State</span>
                     <ExternalLink className="w-2.5 h-2.5" />
                   </div>
@@ -109,7 +109,7 @@ export const IndiaRiskMap: React.FC<IndiaRiskMapProps> = ({ onSelectState }) => 
             })}
           </div>
 
-          <div className="mt-auto z-10 text-center text-[11px] text-slate-400 font-mono bg-slate-900/80 px-4 py-1.5 rounded-full border border-slate-800">
+          <div className="mt-auto z-10 text-center text-[11px] text-slate-600 font-mono bg-white/90 px-4 py-1 rounded-full border border-slate-200 shadow-sm">
             Coordinates Reference: EPSG:4326 (Survey of India Standards)
           </div>
         </div>
